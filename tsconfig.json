@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "sourceMap": true,
+    "module": "commonjs",
+    "target": "es2017",
+    "lib": [
+      "esnext"
+    ],
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@db/*": [
+        "./db/*"
+      ],
+      "@interfaces/*": [
+        "./interfaces/*"
+      ],
+      "@lib/*": [
+        "./lib/*"
+      ],
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

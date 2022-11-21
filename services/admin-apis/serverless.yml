@@ -1,0 +1,226 @@
+service:
+  name: ${file(../../package.json):name}-${self:provider.apiVersion}-admin-apis
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-aws-documentation
+
+provider:
+  name: aws
+  apiVersion: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):apiVersion}
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'} # for this project, use only dev and production
+  region: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):region}
+  iamRoleStatements: # permissions for all of your functions can be set here
+    - Effect: Allow
+      Action: # Gives permission to DynamoDB tables in a specific region
+        - dynamodb:*
+      Resource: 'arn:aws:dynamodb:${self:provider.region}:*:*'
+    - Effect: Allow
+      Action:
+        - cognito-idp:*
+      Resource: 'arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}'
+    - Effect: Allow
+      Action:
+        - iot:*
+      Resource:
+        - "*"
+  environment:
+    STAGE: ${self:provider.stage}
+    S3_BUCKET_NAME: ${file(../../package.json):name}-${self:provider.stage}
+    USER_POOL_ID: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):UserPoolId}
+    USER_POOL_CLIENT_ID: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):UserPoolClientId}
+    IoTEndpoint: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):IoTEndpoint}
+    ISSUER: https://cognito-idp.${self:provider.region}.amazonaws.com/${self:provider.environment.USER_POOL_ID}
+  tags:
+    apiVersion: ${self:provider.apiVersion}
+  versionFunctions: false
+
+functions:
+  get-users:
+    handler: functions/user.getAllUsersHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/user/list
+          method: get
+          cors: true
+          documentation:
+            summary: "Get all users from Cognito"
+            description: "Get all users from Cognito, only admin is allowed"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response contains array of all users"
+  create-user:
+    handler: functions/user.createUserHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/user/create
+          method: post
+          cors: true
+          documentation:
+            summary: "Create new cognito user"
+            description: "Create new cognito user, only admin is allowed"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response contains created user"
+  update-user:
+    handler: functions/user.updateUserHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/user/update/{username}
+          method: put
+          cors: true
+          documentation:
+            summary: "Update cognito user attribute, move group by role"
+            description: "Update cognito user attribute, move group by role, only admin is allowed"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "True"
+  change-user-status:
+    handler: functions/user.changeUserStatusHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/user/status/{username}
+          method: put
+          cors: true
+          documentation:
+            summary: "Enable/Disable cognito user status"
+            description: "Enable/Disable cognito user status, only admin is allowed"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "True"
+  delete-user:
+    handler: functions/user.deleteUserHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/user/delete/{username}
+          method: delete
+          cors: true
+          documentation:
+            summary: "Delete cognito user"
+            description: "Delete cognito user, only admin is allowed"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "True"
+  get-buildings:
+    handler: functions/building.getBuildingsHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/building/list
+          method: get
+          cors: true
+  create-building:
+    handler: functions/building.createBuildingHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/building/create
+          method: post
+          cors: true
+  update-building:
+    handler: functions/building.updateBuildingHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/building/update/{buildingId}
+          method: put
+          cors: true
+  delete-building:
+    handler: functions/building.deleteBuildingHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/building/delete/{buildingId}
+          method: delete
+          cors: true
+  get-systems:
+    handler: functions/system.getSystemsHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/system/list
+          method: get
+          cors: true
+  get-system:
+    handler: functions/system.getSystemHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/system/item/{systemId}
+          method: get
+          cors: true
+  create-system:
+    handler: functions/system.createSystemHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/system/create
+          method: post
+          cors: true
+  update-system:
+    handler: functions/system.updateSystemHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/system/update/{systemId}
+          method: put
+          cors: true
+  assign-system:
+    handler: functions/system.assignUsersToSystemHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/system/assign/{systemId}
+          method: put
+          cors: true
+  delete-system:
+    handler: functions/system.deleteSystemHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/system/delete/{systemId}
+          method: delete
+          cors: true
+  get-commands:
+    handler: functions/command.getCommandsHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/command/list
+          method: get
+          cors: true
+  create-command:
+    handler: functions/command.createCommandHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/command/create
+          method: post
+          cors: true
+  get-controls:
+    handler: functions/control.getControlHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/control/list
+          method: get
+          cors: true
+  create-control:
+    handler: functions/control.createControlHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/control/create
+          method: post
+          cors: true
+  get-process:
+    handler: functions/process.getProcessDataHandler
+    events:
+      - http:
+          path: admin-${self:provider.apiVersion}/process/list
+          method: get
+          cors: true
+
+custom:
+  serverless-offline:
+    port: 4000
+  dotenv:
+    path: ../../.env
+    basePath: ./
+    logging: false
+    include:
+      - ACCESS_KEY_ID
+      - SECRET_ACCESS_KEY

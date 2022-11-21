@@ -1,0 +1,37 @@
+import {System} from "@db/entities/System";
+import {ISystem} from "@interfaces/system";
+import {mapUserResponse} from "@lib/response-map/user";
+
+export const mapSystemResponse = (system: System): ISystem => ({
+  id: system.id,
+  building: null,
+  building_name: system.building && system.building.name,
+  building_street: system.building && system.building.street,
+  building_city: system.building && system.building.city,
+  name: system.name,
+  users: system.users && system.users.map(mapUserResponse),
+  type: system.type,
+  hpwh_primary_manufacturer: system.hpwh_primary_manufacturer,
+  hpwh_primary_number: system.hpwh_primary_number,
+  hpwh_primary_model: system.hpwh_primary_model,
+  hpwh_primary_btuhr: system.hpwh_primary_btuhr,
+  hpwh_recirc_manufacturer: system.hpwh_recirc_manufacturer,
+  hpwh_recirc_number: system.hpwh_recirc_number,
+  hpwh_recirc_model: system.hpwh_recirc_model,
+  hpwh_recirc_btuhr: system.hpwh_recirc_btuhr,
+  storage_primary_number: system.storage_primary_number,
+  storage_primary_total_gallon: system.storage_primary_total_gallon,
+  storage_recirc_number: system.storage_recirc_number,
+  storage_recirc_total_gallon: system.storage_recirc_total_gallon,
+  storage_locus_total_gallon: system.storage_locus_total_gallon,
+  resistance_primary_kw: system.resistance_primary_kw,
+  resistance_recirc_kw: system.resistance_recirc_kw,
+  hybrid_hpwh_gas: system.hybrid_hpwh_gas,
+  location: system.location,
+  notes: system.notes,
+  default_temp_params : system.default_temp_params,
+  default_flow_params : system.default_flow_params,
+  active: system.active,
+  created_at: system.created_at,
+  updated_at: system.updated_at,
+});

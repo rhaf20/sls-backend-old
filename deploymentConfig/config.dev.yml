@@ -1,0 +1,8 @@
+apiVersion: v1 # Update this after releasing new version of API
+region: us-west-2
+apiGateway:
+  restApiId: k89dbs5i6h
+  restApiRootResourceId: waqedtthrh
+UserPoolId: us-west-2_2UZ23mukL
+UserPoolClientId: 37gkju8opvg8bias9ri9lh2mp1
+IoTEndpoint: a9j4psykfmeym-ats.iot.us-west-2.amazonaws.com
